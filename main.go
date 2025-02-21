@@ -51,22 +51,17 @@ func saveImage(img image.Image, filename string) error {
 }
 
 func main() {
-	// Парсим .obj файл
 	vertices, faces, err := parser.ParseObj("model_1.obj")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Создаём матрицу изображения (1000x1000)
 	m := m.NewMatrix(1000, 1000, true, m.RGBColor{R: 255, G: 255, B: 255})
 
-	// Рисуем модель
 	m.DrawModel(vertices, faces)
 
-	// Конвертируем матрицу в изображение
 	img := matrixToImage(&m)
 
-	// Сохраняем в файл
 	if err := saveImage(img, "attachement/output.png"); err != nil {
 		log.Fatal(err)
 	}
