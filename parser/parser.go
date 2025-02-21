@@ -2,7 +2,6 @@ package parser
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -16,6 +15,7 @@ type Face struct {
 	Indices []int
 }
 
+// ParseObj читает .obj файл и извлекает вершины и грани
 func ParseObj(filename string) ([]Vertex, []Face, error) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -29,45 +29,28 @@ func ParseObj(filename string) ([]Vertex, []Face, error) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
-		if len(line) == 0 {
+		parts := strings.Fields(line)
+
+		if len(parts) == 0 {
 			continue
 		}
 
-		// Разбор вершин
-		if strings.HasPrefix(line, "v ") {
-			parts := strings.Fields(line[2:])
-			if len(parts) != 3 {
-				return nil, nil, fmt.Errorf("неверный формат вершины: %s", line)
+		switch parts[0] {
+		case "v": // Вершина
+			if len(parts) < 4 {
+				continue
 			}
+			x, _ := strconv.ParseFloat(parts[1], 64)
+			y, _ := strconv.ParseFloat(parts[2], 64)
+			z, _ := strconv.ParseFloat(parts[3], 64)
+			vertices = append(vertices, Vertex{X: x, Y: y, Z: z})
 
-			x, err := strconv.ParseFloat(parts[0], 64)
-			if err != nil {
-				return nil, nil, err
-			}
-			y, err := strconv.ParseFloat(parts[1], 64)
-			if err != nil {
-				return nil, nil, err
-			}
-			z, err := strconv.ParseFloat(parts[2], 64)
-			if err != nil {
-				return nil, nil, err
-			}
-
-			vertices = append(vertices, Vertex{x, y, z})
-		}
-
-		// Разбор граней
-		if strings.HasPrefix(line, "f ") {
-			parts := strings.Fields(line[2:])
+		case "f": // Грань (полигон)
 			var indices []int
-			for _, part := range parts {
-				// Разбираем индексы вершин
-				indicesParts := strings.Split(part, "/")
-				index, err := strconv.Atoi(indicesParts[0])
-				if err != nil {
-					return nil, nil, err
-				}
-				indices = append(indices, index)
+			for _, facePart := range parts[1:] {
+				vertexIndex := strings.Split(facePart, "/")[0] // Берём только номер вершины
+				idx, _ := strconv.Atoi(vertexIndex)
+				indices = append(indices, idx)
 			}
 			faces = append(faces, Face{Indices: indices})
 		}
