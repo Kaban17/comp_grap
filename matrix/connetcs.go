@@ -113,8 +113,8 @@ func (m *Matrix) Bresenham(x0, y0, x1, y1 int) {
 }
 
 func (m *Matrix) DrawModel(vertices []p.Vertex, faces []p.Face) {
-	scale := 2000.0
-	offsetX, offsetY := 500.0, 525.0
+	scale := 5000.0
+	offsetX, offsetY := 1000.0, 525.0
 
 	// Преобразуем вершины в 2D-координаты
 	transformed := make([][2]int, len(vertices))

@@ -56,7 +56,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	m := m.NewMatrix(1000, 1000, true, m.RGBColor{R: 255, G: 255, B: 255})
+	m := m.NewMatrix(2000, 2000, true, m.RGBColor{R: 255, G: 255, B: 255})
 
 	m.DrawModel(vertices, faces)
 
