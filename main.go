@@ -51,7 +51,7 @@ func saveImage(img image.Image, filename string) error {
 }
 
 func main() {
-	vertices, faces, err := parser.ParseObj("model_1.obj")
+	vertices, faces, err := parser.ParseObj("attachement/model_1.obj")
 	if err != nil {
 		log.Fatal(err)
 	}
