@@ -1,12 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	m "img/matrix"
-	"img/parser"
-	"log"
+	tr "img/triangle"
 	"os"
 )
 
@@ -51,20 +51,17 @@ func saveImage(img image.Image, filename string) error {
 }
 
 func main() {
-	vertices, faces, err := parser.ParseObj("attachement/model_1.obj")
-	if err != nil {
-		log.Fatal(err)
+	m := m.NewMatrix(500, 500, true, m.RGBColor{R: 255, G: 255, B: 255})
+	t := &tr.TriangleVertices{
+		X0: 100.5, Y0: 100.0,
+		X1: 203.1, Y1: 300.0,
+		X2: 300.7, Y2: 100.01,
 	}
 
-	m := m.NewMatrix(2000, 2000, true, m.RGBColor{R: 255, G: 255, B: 255})
-
-	m.DrawModel(vertices, faces)
-
+	t.Draw(&m)
 	img := matrixToImage(&m)
-
-	if err := saveImage(img, "attachement/output.png"); err != nil {
-		log.Fatal(err)
+	err := saveImage(img, "attachment/triangle.png")
+	if err != nil {
+		fmt.Println("Error saving image:", err)
 	}
-
-	log.Println("Изображение сохранено в attachement/output.png")
 }
