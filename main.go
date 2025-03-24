@@ -55,7 +55,7 @@ func main() {
 	t := &tr.TriangleVertices{
 		X0: 100.5, Y0: 100.0,
 		X1: 203.1, Y1: 300.0,
-		X2: 300.7, Y2: 100.01,
+		X2: -300.7, Y2: 100.01,
 	}
 
 	t.Draw(&m)
@@ -64,4 +64,13 @@ func main() {
 	if err != nil {
 		fmt.Println("Error saving image:", err)
 	}
+	// vertex, faces, error := parser.ParseObj("model_1.obj")
+	//
+	//	if error != nil {
+	//		fmt.Println("Error parsing obj:", error)
+	//	}
+	//
+	//	for i := range 5 {
+	//		fmt.Println(vertex[i], faces[i])
+	//	}
 }
