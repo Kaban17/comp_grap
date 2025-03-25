@@ -21,6 +21,18 @@ type TriangleVertices3D struct {
 	Color      matrix.RGBColor
 }
 
+type ZBuffer [][]float64
+
+func NewZBuffer(width, height int) ZBuffer {
+	zb := make(ZBuffer, height)
+	for y := range zb {
+		zb[y] = make([]float64, width)
+		for x := range zb[y] {
+			zb[y][x] = math.MaxFloat64 // Инициализация большим значением
+		}
+	}
+	return zb
+}
 func (p *Point2D) BarCoord(t *TriangleVertices2D) (Point3D, error) {
 	denominator := (t.P1.X-t.P3.X)*(t.P2.Y-t.P3.Y) - (t.P2.X-t.P3.X)*(t.P1.Y-t.P3.Y)
 	if denominator == 0 {
@@ -56,4 +68,32 @@ func (t *TriangleVertices3D) CalculateNormal() Point3D {
 		nz /= length
 	}
 	return Point3D{X: nx, Y: ny, Z: nz}
+}
+func (tri2D *TriangleVertices2D) DrawTriangleWithZBuffer(tri3D TriangleVertices3D, mat *matrix.Matrix, zb ZBuffer) {
+	xMin := int(math.Max(math.Min(tri2D.P1.X, math.Min(tri2D.P2.X, tri2D.P3.X)), 0))
+	yMin := int(math.Max(math.Min(tri2D.P1.Y, math.Min(tri2D.P2.Y, tri2D.P3.Y)), 0))
+	xMax := int(math.Min(math.Max(tri2D.P1.X, math.Max(tri2D.P2.X, tri2D.P3.X)), float64(mat.Cols-1)))
+	yMax := int(math.Min(math.Max(tri2D.P1.Y, math.Max(tri2D.P2.Y, tri2D.P3.Y)), float64(mat.Rows-1)))
+
+	for y := yMin; y <= yMax; y++ {
+		for x := xMin; x <= xMax; x++ {
+			p := Point2D{X: float64(x) + 0.5, Y: float64(y) + 0.5}
+			b, err := p.BarCoord(tri2D)
+			if err != nil {
+				continue
+			}
+
+			if b.X > 0 && b.Y > 0 && b.Z > 0 {
+				// Вычисляем z-координату
+				z := b.X*tri3D.P1.Z + b.Y*tri3D.P2.Z + b.Z*tri3D.P3.Z
+
+				// Проверяем z-буфер
+				if z < zb[y][x] {
+					// Обновляем z-буфер и рисуем пиксель
+					zb[y][x] = z
+					mat.Set(x, y, tri2D.Color)
+				}
+			}
+		}
+	}
 }
