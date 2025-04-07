@@ -10,14 +10,12 @@ import (
 
 func main() {
 	const (
-		// Projection parameters
-		aX = 2000.0 // X scale
-		aY = 2000.0 // Y scale
-		u0 = 250.0  // X center
-		v0 = 250.0  // Y center
+		aX = 2000.0
+		aY = 2000.0
+		u0 = 250.0
+		v0 = 250.0
 	)
 
-	// Create rotation matrices for all three axes
 	angleX := math.Pi / 6
 	angleY := -math.Pi / 4
 	angleZ := math.Pi / 3
@@ -26,13 +24,10 @@ func main() {
 	rotationY := geometry.NewRotationMatrixY(angleY)
 	rotationZ := geometry.NewRotationMatrixZ(angleZ)
 
-	// Combine rotations (order matters: Z -> Y -> X)
 	rotation := rotationX.Multiply(rotationY.Multiply(rotationZ))
 
-	// Move model away from origin (positive Z values)
 	tx, ty, tz := 0.0, 0.0, 10.0
 
-	// Create image matrix and z-buffer
 	mat := geometry.NewMatrix(500, 500, true, geometry.RGBColor{R: 255, G: 255, B: 255})
 	zb := geometry.NewZBuffer(500, 500)
 
@@ -46,13 +41,10 @@ func main() {
 		if len(face.Indices) < 3 {
 			continue
 		}
-
-		// Get original vertices
 		vert0 := vertex[face.Indices[0]-1]
 		vert1 := vertex[face.Indices[1]-1]
 		vert2 := vertex[face.Indices[2]-1]
 
-		// Create and transform 3D points
 		p0 := geometry.Point3D{
 			X: float64(vert0.X),
 			Y: float64(vert0.Y),
@@ -69,12 +61,10 @@ func main() {
 			Z: float64(vert2.Z),
 		}
 
-		// Apply rotation
 		p0 = rotation.TransformPoint(p0)
 		p1 = rotation.TransformPoint(p1)
 		p2 = rotation.TransformPoint(p2)
 
-		// Apply translation
 		p0.X += tx
 		p0.Y += ty
 		p0.Z += tz
@@ -95,7 +85,7 @@ func main() {
 		cosTheta := normal.Z // Направление света [0,0,1]
 
 		if cosTheta < 0 {
-			// Project to screen coordinates
+
 			tri2D := geometry.TriangleVertices2D{
 				P1: geometry.Point2D{
 					X: p0.X*aX + u0,
