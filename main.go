@@ -5,19 +5,22 @@ import (
 	"img/geometry"
 	"img/parser"
 	"img/save"
-	"math"
 )
 
+func proj(p geometry.Point3D) geometry.Point2D {
+	aX, aY := 5000.0, 5000.0
+	u0, v0 := 250.0, 250.0
+	return geometry.Point2D{
+		X: aX*p.X/p.Z + u0,
+		Y: aY*p.Y/p.Z + v0,
+	}
+}
 func main() {
 	const (
-		scale   = 2500.0
-		offsetX = 250.0
-		offsetY = 250.0
+		angleX = 0
+		angleY = 0
+		angleZ = 0
 	)
-
-	angleX := math.Pi / 6
-	angleY := -math.Pi / 4
-	angleZ := math.Pi / 3
 
 	rotationX := geometry.NewRotationMatrixX(angleX)
 	rotationY := geometry.NewRotationMatrixY(angleY)
@@ -25,7 +28,7 @@ func main() {
 
 	rotation := rotationX.Multiply(rotationY.Multiply(rotationZ))
 
-	tx, ty, tz := 0.0, 0.0, 0.0
+	tx, ty, tz := 0.0, 0.0, 2.0
 
 	mat := geometry.NewMatrix(500, 500, true, geometry.RGBColor{R: 255, G: 255, B: 255})
 	zb := geometry.NewZBuffer(500, 500)
@@ -66,17 +69,19 @@ func main() {
 		cosTheta := normal.Z // Направление света [0,0,1]
 
 		if cosTheta < 0 {
+			screenP1 := proj(p0)
+			screenP2 := proj(p1)
+			screenP3 := proj(p2)
 			tri2D := geometry.TriangleVertices2D{
-				P1: geometry.Point2D{X: p0.X*scale + offsetX, Y: -p0.Y*scale + offsetY},
-				P2: geometry.Point2D{X: p1.X*scale + offsetX, Y: -p1.Y*scale + offsetY},
-				P3: geometry.Point2D{X: p2.X*scale + offsetX, Y: -p2.Y*scale + offsetY},
+				P1: screenP1,
+				P2: screenP2,
+				P3: screenP3,
 				Color: geometry.RGBColor{
 					R: uint8(-255 * cosTheta),
 					G: 0,
 					B: 0,
 				},
 			}
-
 			tri2D.DrawTriangleWithZBuffer(tri3D, &mat, zb)
 		}
 	}
