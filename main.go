@@ -5,6 +5,7 @@ import (
 	"img/geometry"
 	"img/parser"
 	"img/save"
+	"math"
 )
 
 func proj(p geometry.Point3D) geometry.Point2D {
@@ -17,8 +18,8 @@ func proj(p geometry.Point3D) geometry.Point2D {
 }
 func main() {
 	const (
-		angleX = 0
-		angleY = 0
+		angleX = math.Pi
+		angleY = math.Pi / 4
 		angleZ = 0
 	)
 
@@ -38,7 +39,16 @@ func main() {
 		fmt.Println("Error parsing obj:", err)
 		return
 	}
-
+	var center geometry.Point3D
+	for _, v := range vertex {
+		center.X += v.X
+		center.Y += v.Y
+		center.Z += v.Z
+	}
+	n := float64(len(vertex))
+	center.X /= n
+	center.Y /= n
+	center.Z /= n
 	for _, face := range faces {
 		if len(face.Indices) < 3 {
 			continue
@@ -59,6 +69,9 @@ func main() {
 		p1 = geometry.Translate(p1, tx, ty, tz)
 		p2 = geometry.Translate(p2, tx, ty, tz)
 
+		p0 = geometry.Add(p0, center)
+		p1 = geometry.Add(p1, center)
+		p2 = geometry.Add(p2, center)
 		tri3D := geometry.TriangleVertices3D{
 			P1: geometry.Point3D{X: p0.X, Y: p0.Y, Z: p0.Z},
 			P2: geometry.Point3D{X: p1.X, Y: p1.Y, Z: p1.Z},
@@ -66,7 +79,7 @@ func main() {
 		}
 
 		normal := tri3D.CalculateNormal()
-		cosTheta := normal.Z // Направление света [0,0,1]
+		cosTheta := normal.Z
 
 		if cosTheta < 0 {
 			screenP1 := proj(p0)
@@ -78,8 +91,8 @@ func main() {
 				P3: screenP3,
 				Color: geometry.RGBColor{
 					R: uint8(-255 * cosTheta),
-					G: 0,
-					B: 0,
+					G: uint8(255 * cosTheta),
+					B: uint8(255 * cosTheta),
 				},
 			}
 			tri2D.DrawTriangleWithZBuffer(tri3D, &mat, zb)
@@ -87,7 +100,7 @@ func main() {
 	}
 
 	img := save.MatrixToImage(&mat)
-	if err := save.SaveImage(img, "output.png"); err != nil {
+	if err := save.SaveImage(img, "output2.png"); err != nil {
 		fmt.Println("Error saving image:", err)
 	}
 }

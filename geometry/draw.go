@@ -12,7 +12,7 @@ func NewZBuffer(width, height int) ZBuffer {
 	for i := range data {
 		data[i] = make([]float64, width)
 		for j := range data[i] {
-			data[i][j] = -1e9
+			data[i][j] = 1e9
 		}
 	}
 	return ZBuffer{
@@ -47,7 +47,7 @@ func (t TriangleVertices2D) DrawTriangleWithZBuffer(tri3D TriangleVertices3D, ma
 
 				z := w1*tri3D.P1.Z + w2*tri3D.P2.Z + w3*tri3D.P3.Z
 
-				if z > zb.Data[y][x] {
+				if z <= zb.Data[y][x] {
 					zb.Data[y][x] = z
 					mat.Data[y][x] = t.Color
 				}

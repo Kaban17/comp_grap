@@ -64,8 +64,8 @@ func NewRotationMatrixX(angle float64) Matrix3D {
 	sin := math.Sin(angle)
 	return Matrix3D{
 		{1, 0, 0},
-		{0, cos, -sin},
-		{0, sin, cos},
+		{0, cos, sin},
+		{0, -sin, cos},
 	}
 }
 
@@ -73,8 +73,8 @@ func NewRotationMatrixZ(angle float64) Matrix3D {
 	cos := math.Cos(angle)
 	sin := math.Sin(angle)
 	return Matrix3D{
-		{cos, -sin, 0},
-		{sin, cos, 0},
+		{cos, sin, 0},
+		{-sin, cos, 0},
 		{0, 0, 1},
 	}
 }
@@ -133,4 +133,12 @@ func (t TriangleVertices3D) CalculateNormal() Point3D {
 	}
 
 	return normal
+}
+
+func Add(p, q Point3D) Point3D {
+	return Point3D{
+		X: p.X + q.X,
+		Y: p.Y + q.Y,
+		Z: p.Z + q.Z,
+	}
 }
